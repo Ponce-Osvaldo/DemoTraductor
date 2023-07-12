@@ -11,21 +11,12 @@
         android:id="@+id/btnespanish"
         android:layout_width="95dp"
         android:layout_height="80dp"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="156dp"
         android:background="@drawable/google"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textotraducidoespañol"
         app:layout_constraintVertical_bias="0.22" />
-
-    <TextView
-        android:id="@+id/vozatexto"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:textColor="#000000"
-        android:visibility="invisible"
-        tools:layout_editor_absoluteX="252dp"
-        tools:layout_editor_absoluteY="406dp" />
 
     <TextView
         android:id="@+id/textotraducidoespañol"
@@ -42,27 +33,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.13" />
 
-    <Button
-        android:id="@+id/btnspeak"
-        android:layout_width="89dp"
-        android:layout_height="82dp"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/google"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.024"
-        app:layout_constraintStart_toEndOf="@+id/btnespanish"
-        app:layout_constraintTop_toBottomOf="@+id/textotraducidoingles"
-        app:layout_constraintVertical_bias="0.215" />
-
     <TextView
         android:id="@+id/vozatextoingles"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:textColor="#000000"
         android:visibility="invisible"
-        tools:layout_editor_absoluteX="155dp"
-        tools:layout_editor_absoluteY="406dp" />
+        tools:layout_editor_absoluteX="205dp"
+        tools:layout_editor_absoluteY="405dp" />
 
     <TextView
         android:id="@+id/textotraducidoingles"
