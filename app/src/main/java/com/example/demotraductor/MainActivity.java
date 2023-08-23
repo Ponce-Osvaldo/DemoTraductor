@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,33 +36,12 @@ public class MainActivity extends AppCompatActivity {
     private LanguageServiceClient languageServiceClient;
 
     //Metodo que permitira "leer el texto en voz alta" pero en ingles
-    private void readText(String text) {
+    private void readText(String text, Locale locale) {
         // Crea una instancia de TextToSpeech
         textToSpeech = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 // Configura el idioma de lectura
-                int result = textToSpeech.setLanguage(Locale.ENGLISH);
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e("TextToSpeech", "Language not supported");
-                } else {
-                    // Lee el texto
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-                    }
-                }
-            } else {
-                Log.e("TextToSpeech", "Initialization failed");
-            }
-        });
-    }
-
-    //funcion que permitira "leer el texto en voz alta" pero en español
-    private void readText2(String text) {
-        // Crea una instancia de TextToSpeech
-        textToSpeech = new TextToSpeech(this, status -> {
-            if (status == TextToSpeech.SUCCESS) {
-                // Configura el idioma de lectura
-                int result = textToSpeech.setLanguage(Locale.getDefault());
+                int result = textToSpeech.setLanguage(locale);
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e("TextToSpeech", "Language not supported");
                 } else {
@@ -87,6 +68,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        // Inicializa los Spinner para los idiomas
+        Spinner sourceLanguageSpinner = findViewById(R.id.sourceLanguageSpinner);
+        Spinner targetLanguageSpinner = findViewById(R.id.targetLanguageSpinner);
+
+        // Crea un ArrayAdapter usando un simple spinner_item y un array de idiomas
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.languages_array, android.R.layout.simple_spinner_item);
+
+        // Especifica el layout a usar cuando aparece la lista de opciones
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Aplica el adaptador a los Spinner
+        sourceLanguageSpinner.setAdapter(adapter);
+        targetLanguageSpinner.setAdapter(adapter);
+
         //Boton funcion hablar en español
         Button btnSpanish = findViewById(R.id.btnespanish);
         btnSpanish.setOnClickListener(view -> {
@@ -95,23 +90,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
             intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Habla ahora...");
-
-            // Iniciar el reconocimiento de voz
-            try {
-                startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(MainActivity.this, "El reconocimiento de voz no está disponible en este dispositivo", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        //boton funcion hablar en ingles
-        Button btnEnglish = findViewById(R.id.btnspeak);
-        btnEnglish.setOnClickListener(view -> {
-            // Crear un Intent para el reconocimiento de voz
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak Now...");
 
             // Iniciar el reconocimiento de voz
             try {
@@ -146,16 +124,18 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 String recognizedText = result.get(0);
 
-                TextView tvRecognizedText = findViewById(R.id.vozatexto);
-                tvRecognizedText.setText(recognizedText);
-
                 TextView tvRecognizedText2 = findViewById(R.id.vozatextoingles);
                 tvRecognizedText2.setText(recognizedText);
 
+
+
                 //para llamar conectar con el servicio de DeepL
                 String apiKey = "a10f12d0-5d19-7e71-d17c-4f008c4b4243:fx";
-                String sourceLanguage = detectLanguage(recognizedText); //detectar idioma
-                String targetLanguage = "EN-US"; // idioma que traduce al ingles
+                Spinner sourceLanguageSpinner = findViewById(R.id.sourceLanguageSpinner);
+                Spinner targetLanguageSpinner = findViewById(R.id.targetLanguageSpinner);
+
+                String sourceLanguage = sourceLanguageSpinner.getSelectedItem().toString();
+                String targetLanguage = targetLanguageSpinner.getSelectedItem().toString();
 
                 String targetLanguage2 = "ES"; // idioma que traduce al español
 
@@ -181,8 +161,10 @@ public class MainActivity extends AppCompatActivity {
                             TextView tvTranslatedText = findViewById(R.id.textotraducidoingles);
                             tvTranslatedText.setText(translation.getTranslatedText());
 
+                            Locale targetLocale = new Locale(targetLanguage);
+
                             // Lee el texto traducido en voz alta
-                            readText(translation.getTranslatedText());
+                            readText(translation.getTranslatedText(), targetLocale);
                         } else {
                             // Muestra un mensaje de error si la respuesta no es satisfactoria
                             Toast.makeText(MainActivity.this, "Error al traducir el texto", Toast.LENGTH_SHORT).show();
@@ -210,8 +192,6 @@ public class MainActivity extends AppCompatActivity {
                             TextView tvTranslatedText2 = findViewById(R.id.textotraducidoespañol);
                             tvTranslatedText2.setText(translation.getTranslatedText());
 
-                            // Lee el texto traducido en voz alta
-                            readText2(translation.getTranslatedText());
                         } else {
                             // Muestra un mensaje de error si la respuesta no es satisfactoria
                             Toast.makeText(MainActivity.this, "Error al traducir el texto", Toast.LENGTH_SHORT).show();
